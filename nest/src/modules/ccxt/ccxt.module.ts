@@ -3,13 +3,8 @@ import { CcxtService } from "./ccxt.service";
 import { CCXT_ASYNC_OPTIONS, CCXT_OPTIONS, CcxtConfigurableModuleClass } from "./ccxt.const";
 
 @Module({
-    imports: [],
-    exports: [
-        CcxtService
-    ],
-    providers: [
-        CcxtService
-    ]
+    exports: [CcxtService],
+    providers: [CcxtService]
 })
 export class CcxtModule extends CcxtConfigurableModuleClass {
     static register(options: typeof CCXT_OPTIONS): DynamicModule {

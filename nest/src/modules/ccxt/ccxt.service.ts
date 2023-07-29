@@ -1,38 +1,28 @@
+import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import ccxt, { Exchange } from 'ccxt';
-
-import { Injectable, OnModuleInit } from "@nestjs/common";
+import { MODULE_OPTIONS_TOKEN } from './ccxt.const';
+import { CcxtConfig } from './interfaces/ccxt.interface';
 
 export type ConfigType = { apiKey: string, secret: string, sandboxMode: boolean, verbose: boolean, }
 
 @Injectable()
-export class CcxtService  {
-  private _clients: Map<string, Exchange> = {} as Map<
-    string,
-    Exchange
-  >;
-  private _lastMarketsFetch: Map<string, number> = {} as Map<
-    string,
-    number
-  >;
+export class CcxtService implements OnModuleInit {
+  private _clients: Map<string, Exchange> = {} as Map<string, Exchange>;
+  private _lastMarketsFetch: Map<string, number> = {} as Map<string, number>;
   private options = {
     marketsCacheExpireMs: 20000,
     sandboxMode: true
   }
   constructor(
+    @Inject(MODULE_OPTIONS_TOKEN)
+    private configuration: CcxtConfig
   ) {
   }
   async onModuleInit(): Promise<void> {
-    const configs = [{
-      exchangeId: 'binance',
-      apiKey: 'H53JItGKH62uDYdy6DnN43Ky61oxy77k44EcZOiKgdtFXfCE3cSLgxke0pJoT0q3',
-      secret: 'V1y1X6viGQ85oyKVGGVce6NFriqlLFzwU519J9AizfnJkafZ3GqSM3TjIsQNIFRE',
-      sandboxMode: true,
-      loadMarketsOnStartup: false,
-      verbose: false,
-      loadMarkets: false
-    }]
-    await Promise.all(configs.map(async (config) => {
-      await this.loadExchange(config.exchangeId, config, config.loadMarkets)
+    if (!this.configuration) return
+    const { exchanges } = this.configuration
+    await Promise.all(exchanges.map(async (exchanges) => {
+      await this.loadExchange(exchanges.exchangeId, exchanges, exchanges.loadMarkets)
     }))
   }
   private async loadExchange(exchangeId: string, config: Partial<ConfigType>, loadMarkets: boolean) {
