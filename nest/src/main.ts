@@ -7,7 +7,9 @@ async function bootstrap() {
   const exchangeService = app.get(ExchangeService)
   await app.listen(3000);
   try {
-    await exchangeService.run()
+    setTimeout(() => {
+      exchangeService.run()
+    }, 2000);
   } catch (ex) {
     console.log(ex)
   }

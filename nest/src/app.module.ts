@@ -16,7 +16,6 @@ import { CcxtModule } from './modules/ccxt/ccxt.module';
         sandboxMode: true,
         loadMarketsOnStartup: false,
         verbose: false,
-        loadMarkets: false
       }],
       isGlobal: true
     }),

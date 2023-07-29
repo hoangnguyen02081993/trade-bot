@@ -1,11 +1,12 @@
 export interface CcxtConfig {
-    exchanges: Array<{
-        exchangeId: string
-        apiKey: string
-        secret: string
-        sandboxMode: true,
-        loadMarketsOnStartup: false,
-        verbose: false,
-        loadMarkets: false
-    }>
+    exchanges: Array<ExchangeOption>
+}
+export interface ExchangeOption {
+    exchangeId: string
+    apiKey: string
+    secret: string
+    sandboxMode: boolean,
+    loadMarketsOnStartup: false,
+    verbose: false,
+    marketsCacheExpireMs?: number
 }

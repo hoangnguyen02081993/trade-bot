@@ -70,9 +70,9 @@ export class ExchangeService {
         // EXCHANGE Symbol2 TO USDT
         const profit1 = (market3.buy.price * pair3Amount) - tradingFees
         if (profit1 > volumn) {
-            const rs1 = await this.exchange(market1.symbol, 'limit', 'buy', pair1Volumn, market1.sell.price)
-            const rs2 = await this.exchange(market2.symbol, 'limit', 'sell', first(rs1.trades).amount, market2.buy.price)
-            await this.exchange(market3.symbol, 'limit', 'sell', first(rs2.trades).amount, market3.buy.price)
+            // const rs1 = await this.exchange(market1.symbol, 'limit', 'buy', pair1Volumn, market1.sell.price)
+            // const rs2 = await this.exchange(market2.symbol, 'limit', 'sell', first(rs1.trades).amount, market2.buy.price)
+            // await this.exchange(market3.symbol, 'limit', 'sell', first(rs2.trades).amount, market3.buy.price)
             return profit1
         }
 
@@ -83,12 +83,12 @@ export class ExchangeService {
         // EXCHANGE Symbol1 to USDT 
         const profit2 = (market1.buy.price * symbol1Amount) - tradingFees
         if (profit2 > volumn) {
-            const rs1 = await this.exchange(market3.symbol, 'limit', 'buy', symbol2Amount, market3.sell.price)
-            const rs2 = await this.exchange(market2.symbol, 'limit', 'buy', first(rs1.trades).amount * market2.buy.price, market2.buy.price)
-            await this.exchange(market3.symbol, 'limit', 'sell', first(rs2.trades).amount, market1.buy.price)
+            // const rs1 = await this.exchange(market3.symbol, 'limit', 'buy', symbol2Amount, market3.sell.price)
+            // const rs2 = await this.exchange(market2.symbol, 'limit', 'buy', first(rs1.trades).amount * market2.buy.price, market2.buy.price)
+            // await this.exchange(market3.symbol, 'limit', 'sell', first(rs2.trades).amount, market1.buy.price)
             return profit2
         }
-        return 0
+        return Math.max(profit1, profit2)
     }
 
     exchange = async (symbols, type: 'market' | 'limit', side: 'buy' | 'sell', volumn: number, price: number) => {
@@ -136,8 +136,8 @@ export class ExchangeService {
             if (profit > 0) {
                 const message = `[${symbols}] \nProfit: ${profit - volumn}`
                 this.log(message, 'DEBUG')
-                const balance = await await binance.fetchTotalBalance()
-                this.log(`Current Balance: \n${Object.keys(balance).map((k) => `${k}: ${balance[k]}`).join('\n')}`, 'LOG')
+                // const balance = await await binance.fetchTotalBalance()
+                // this.log(`Current Balance: \n${Object.keys(balance).map((k) => `${k}: ${balance[k]}`).join('\n')}`, 'LOG')
             }
         }
 
