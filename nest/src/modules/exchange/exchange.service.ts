@@ -19,10 +19,55 @@ export class ExchangeService {
 
     loadConfig = (): Array<ExchangeConfig> => {
         return [{
-            period: 5000,
+            period: 100,
             tradingPairs: [
                 {
                     symbols: ['LTCUSDT', 'LTCBTC', 'BTCUSDT'],
+                    takeProfitThreadhold: 2,
+                    volumn: 100 // USDT
+                },
+                {
+                    symbols: ['TOMOUSDT', 'TOMOBTC', 'BTCUSDT'],
+                    takeProfitThreadhold: 2,
+                    volumn: 100 // USDT
+                },
+                {
+                    symbols: ['FORUSDT', 'FORBTC', 'BTCUSDT'],
+                    takeProfitThreadhold: 2,
+                    volumn: 100 // USDT
+                },
+                {
+                    symbols: ['ETHUSDT', 'ETHBTC', 'BTCUSDT'],
+                    takeProfitThreadhold: 2,
+                    volumn: 100 // USDT
+                },
+                {
+                    symbols: ['NEARUSDT', 'NEARBTC', 'BTCUSDT'],
+                    takeProfitThreadhold: 2,
+                    volumn: 100 // USDT
+                },
+                {
+                    symbols: ['XLMUSDT', 'XLMBTC', 'BTCUSDT'],
+                    takeProfitThreadhold: 2,
+                    volumn: 100 // USDT
+                },
+                {
+                    symbols: ['DOGEUSDT', 'DOGEBTC', 'BTCUSDT'],
+                    takeProfitThreadhold: 2,
+                    volumn: 100 // USDT
+                },
+                {
+                    symbols: ['ADAUSDT', 'ADABTC', 'BTCUSDT'],
+                    takeProfitThreadhold: 2,
+                    volumn: 100 // USDT
+                },
+                {
+                    symbols: ['LINKUSDT', 'LINKBTC', 'BTCUSDT'],
+                    takeProfitThreadhold: 2,
+                    volumn: 100 // USDT
+                },
+                {
+                    symbols: ['WINGUSDT', 'WINGBTC', 'BTCUSDT'],
                     takeProfitThreadhold: 2,
                     volumn: 100 // USDT
                 }
@@ -69,12 +114,12 @@ export class ExchangeService {
         const pair3Amount = market2.buy.price * pair1Volumn
         // EXCHANGE Symbol2 TO USDT
         const profit1 = (market3.buy.price * pair3Amount) - tradingFees
-        if (profit1 > volumn) {
-            // const rs1 = await this.exchange(market1.symbol, 'limit', 'buy', pair1Volumn, market1.sell.price)
-            // const rs2 = await this.exchange(market2.symbol, 'limit', 'sell', first(rs1.trades).amount, market2.buy.price)
-            // await this.exchange(market3.symbol, 'limit', 'sell', first(rs2.trades).amount, market3.buy.price)
-            return profit1
-        }
+        // if (profit1 > volumn) {
+        //     const rs1 = await this.exchange(market1.symbol, 'limit', 'buy', pair1Volumn, market1.sell.price)
+        //     const rs2 = await this.exchange(market2.symbol, 'limit', 'sell', first(rs1.trades).amount, market2.buy.price)
+        //     await this.exchange(market3.symbol, 'limit', 'sell', first(rs2.trades).amount, market3.buy.price)
+        //     return profit1
+        // }
 
         // EXCHANGE USDT To Symbol2
         const symbol2Amount = volumn / market3.sell.price
@@ -82,12 +127,12 @@ export class ExchangeService {
         const symbol1Amount = market2.sell.price * symbol2Amount
         // EXCHANGE Symbol1 to USDT 
         const profit2 = (market1.buy.price * symbol1Amount) - tradingFees
-        if (profit2 > volumn) {
-            // const rs1 = await this.exchange(market3.symbol, 'limit', 'buy', symbol2Amount, market3.sell.price)
-            // const rs2 = await this.exchange(market2.symbol, 'limit', 'buy', first(rs1.trades).amount * market2.buy.price, market2.buy.price)
-            // await this.exchange(market3.symbol, 'limit', 'sell', first(rs2.trades).amount, market1.buy.price)
-            return profit2
-        }
+        // if (profit2 > volumn) {
+        //     const rs1 = await this.exchange(market3.symbol, 'limit', 'buy', symbol2Amount, market3.sell.price)
+        //     const rs2 = await this.exchange(market2.symbol, 'limit', 'buy', first(rs1.trades).amount * market2.buy.price, market2.buy.price)
+        //     await this.exchange(market3.symbol, 'limit', 'sell', first(rs2.trades).amount, market1.buy.price)
+        //     return profit2
+        // }
         return Math.max(profit1, profit2)
     }
 
@@ -121,10 +166,6 @@ export class ExchangeService {
 
     run = async () => {
         const binance = await this.ccxtService.getClient('binance')
-
-        const today = new Date();
-        today.setMinutes(today.getMinutes() - 5)
-
         const cal = async (tradingPair: TradingPair) => {
             const { volumn, symbols } = tradingPair
             const [orderBook1, orderBook2, orderBook3] = await Promise.all(symbols.map((symbol) => binance.fetchOrderBook(symbol, 1,)))
@@ -133,12 +174,14 @@ export class ExchangeService {
             const marketOrder3 = this.getMarket(orderBook3)
             const tradingFees = this.getTradingsFee(tradingPair.volumn, 'NORMAL', 'marker') + this.getTradingsFee(volumn, 'NORMAL', 'taker')
             const profit = await this.calculateProfit(marketOrder1, marketOrder2, marketOrder3, volumn, tradingFees)
-            if (profit > 0) {
-                const message = `[${symbols}] \nProfit: ${profit - volumn}`
+            if (profit > volumn) {
+                const message = `\n[${symbols}] Estimate: ${profit - volumn} | ${profit}\n`
                 this.log(message, 'DEBUG')
+                return
                 // const balance = await await binance.fetchTotalBalance()
-                // this.log(`Current Balance: \n${Object.keys(balance).map((k) => `${k}: ${balance[k]}`).join('\n')}`, 'LOG')
+                // this.log(`Current Balance: \n${Object.keys(balance).filter((k) => !!balance[k]).map((k) => `${k}: ${balance[k]}`).join('\n')}`, 'LOG')
             }
+            this.log(`PAIR [${symbols}] | ${profit - volumn}\n`, 'DEBUG')
         }
 
         const configs = this.loadConfig()
