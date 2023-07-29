@@ -17,15 +17,6 @@ export class ExchangeService {
 
     }
 
-    getClient = async (clientId: string = 'binance') => {
-        return await this.ccxtService.getClient('binance', {
-            apiKey: 'H53JItGKH62uDYdy6DnN43Ky61oxy77k44EcZOiKgdtFXfCE3cSLgxke0pJoT0q3',
-            secret: 'V1y1X6viGQ85oyKVGGVce6NFriqlLFzwU519J9AizfnJkafZ3GqSM3TjIsQNIFRE',
-            sandboxMode: true,
-            verbose: false,
-        });
-    }
-
     loadConfig = (): Array<ExchangeConfig> => {
         return [{
             period: 5000,
@@ -101,7 +92,7 @@ export class ExchangeService {
     }
 
     exchange = async (symbols, type: 'market' | 'limit', side: 'buy' | 'sell', volumn: number, price: number) => {
-        const binance = await this.getClient()
+        const binance = await this.ccxtService.getClient('binance')
         return await binance.createOrder(symbols, type, side, volumn, price)
     }
 
@@ -129,7 +120,7 @@ export class ExchangeService {
     }
 
     run = async () => {
-        const binance = await this.getClient()
+        const binance = await this.ccxtService.getClient('binance')
 
         const today = new Date();
         today.setMinutes(today.getMinutes() - 5)
