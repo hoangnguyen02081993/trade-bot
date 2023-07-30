@@ -13,67 +13,7 @@ export class ExchangeService {
         private readonly configService: ConfigService,
         private readonly ccxtService: CcxtService,
         private readonly telegramService: TelegramService
-    ) {
-
-    }
-
-    loadConfig = (): Array<ExchangeConfig> => {
-        return [{
-            period: 5,
-            tradingPairs: [
-                {
-                    symbols: ['LTCUSDT', 'LTCBTC', 'BTCUSDT'],
-                    takeProfitThreadhold: 2,
-                    volumn: 100 // USDT
-                },
-                {
-                    symbols: ['TOMOUSDT', 'TOMOBTC', 'BTCUSDT'],
-                    takeProfitThreadhold: 2,
-                    volumn: 100 // USDT
-                },
-                {
-                    symbols: ['FORUSDT', 'FORBTC', 'BTCUSDT'],
-                    takeProfitThreadhold: 2,
-                    volumn: 100 // USDT
-                },
-                {
-                    symbols: ['ETHUSDT', 'ETHBTC', 'BTCUSDT'],
-                    takeProfitThreadhold: 2,
-                    volumn: 100 // USDT
-                },
-                {
-                    symbols: ['NEARUSDT', 'NEARBTC', 'BTCUSDT'],
-                    takeProfitThreadhold: 2,
-                    volumn: 100 // USDT
-                },
-                {
-                    symbols: ['XLMUSDT', 'XLMBTC', 'BTCUSDT'],
-                    takeProfitThreadhold: 2,
-                    volumn: 100 // USDT
-                },
-                {
-                    symbols: ['DOGEUSDT', 'DOGEBTC', 'BTCUSDT'],
-                    takeProfitThreadhold: 2,
-                    volumn: 100 // USDT
-                },
-                {
-                    symbols: ['ADAUSDT', 'ADABTC', 'BTCUSDT'],
-                    takeProfitThreadhold: 2,
-                    volumn: 100 // USDT
-                },
-                {
-                    symbols: ['LINKUSDT', 'LINKBTC', 'BTCUSDT'],
-                    takeProfitThreadhold: 2,
-                    volumn: 100 // USDT
-                },
-                {
-                    symbols: ['WINGUSDT', 'WINGBTC', 'BTCUSDT'],
-                    takeProfitThreadhold: 2,
-                    volumn: 100 // USDT
-                }
-            ]
-        }]
-    }
+    ) { }
 
     log = async (message: string, type: 'DEBUG' | 'ERROR' | 'LOG' = 'LOG') => {
         const telegramMessage = `${new Date().toISOString()} ${type}: \n${message}`;
@@ -180,14 +120,14 @@ export class ExchangeService {
             if (profit > volumn) {
                 const message = `\n[${symbols}] Estimate: ${profit - volumn} | ${profit}\n`
                 this.log(message, 'DEBUG')
+                const balance = await await binance.fetchTotalBalance()
+                this.log(`Current Balance: \n${Object.keys(balance).filter((k) => !!balance[k] && balance[k] > 0.0001).map((k) => `${k}: ${balance[k]}`).join('\n')}`, 'LOG')
                 return
-                // const balance = await await binance.fetchTotalBalance()
-                // this.log(`Current Balance: \n${Object.keys(balance).filter((k) => !!balance[k]).map((k) => `${k}: ${balance[k]}`).join('\n')}`, 'LOG')
             }
             this.log(`PAIR [${symbols}] | ${profit - volumn}\n`, 'DEBUG')
         }
 
-        const configs = this.loadConfig()
+        const configs = [this.configService.get<ExchangeConfig>('exchange')]
         await Promise.all(configs.flatMap(({ period, tradingPairs }) =>
             tradingPairs.map((tradingPair) => this.loop(() => cal(tradingPair), period))
         ))
