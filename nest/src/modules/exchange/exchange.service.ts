@@ -19,7 +19,7 @@ export class ExchangeService {
 
     loadConfig = (): Array<ExchangeConfig> => {
         return [{
-            period: 100,
+            period: 5,
             tradingPairs: [
                 {
                     symbols: ['LTCUSDT', 'LTCBTC', 'BTCUSDT'],
@@ -168,7 +168,10 @@ export class ExchangeService {
         const binance = await this.ccxtService.getClient('binance')
         const cal = async (tradingPair: TradingPair) => {
             const { volumn, symbols } = tradingPair
-            const [orderBook1, orderBook2, orderBook3] = await Promise.all(symbols.map((symbol) => binance.fetchOrderBook(symbol, 1,)))
+            const [orderBook1, orderBook2, orderBook3] = await Promise.all(symbols.map((symbol) => {
+                return binance.watchOrderBook(symbol, 5)
+                // return binance.fetchOrderBook(symbol, 1,)
+            }))
             const marketOrder1 = this.getMarket(orderBook1)
             const marketOrder2 = this.getMarket(orderBook2)
             const marketOrder3 = this.getMarket(orderBook3)

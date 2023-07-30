@@ -1,5 +1,5 @@
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
-import ccxt, { Exchange } from 'ccxt';
+import { Exchange, pro as ccxt  } from 'ccxt';
 import { MODULE_OPTIONS_TOKEN } from './ccxt.const';
 import { CcxtConfig, ExchangeOption } from './interfaces/ccxt.interface';
 
